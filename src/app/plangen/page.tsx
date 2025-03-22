@@ -206,11 +206,10 @@ const PlanGenerator = () => {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-4 py-10">
                 <div className="grid md:grid-cols-5 gap-8">
                     {/* Main Content Area */}
-                    <div className="md:col-span-3 space-y-8">
-                        {/* Generator Card */}
+                    <div className="md:col-span-3 space-y-5">
                         <Card className="overflow-hidden border-none shadow-xl bg-white dark:bg-gray-800">
                             <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                                 <CardTitle className="flex items-center text-2xl">

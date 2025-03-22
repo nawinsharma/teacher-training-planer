@@ -12,7 +12,7 @@ const Index = () => {
          {/* Features Section */}
        <div className="m-16">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">
-            Why Use EdPlanAI?
+            Why Use BrainTrainX?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
