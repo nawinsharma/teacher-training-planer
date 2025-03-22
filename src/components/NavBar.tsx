@@ -36,12 +36,11 @@ export const NavBar = () => {
           className="text-foreground font-semibold text-xl flex items-center"
         >
           <span className="bg-blue-600 text-white rounded-md p-1 mr-2">T</span>
-          TeacherTrain
+          BrainTrainX
         </Link>
         
         <div className="hidden md:flex items-center space-x-8">
           <NavLink href="/">Home</NavLink>
-          <NavLink href="/plans">My Plans</NavLink>
           <NavLink href="/about">About</NavLink>
           <button className="button-primary">Get Started</button>
         </div>
@@ -64,9 +63,6 @@ export const NavBar = () => {
           <div className="flex flex-col space-y-4 p-2">
             <MobileNavLink href="/" onClick={() => setMobileMenuOpen(false)}>
               Home
-            </MobileNavLink>
-            <MobileNavLink href="/plans" onClick={() => setMobileMenuOpen(false)}>
-              My Plans
             </MobileNavLink>
             <MobileNavLink href="/about" onClick={() => setMobileMenuOpen(false)}>
               About

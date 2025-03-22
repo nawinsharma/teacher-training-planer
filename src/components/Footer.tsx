@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <Link href="/" className="text-foreground font-semibold text-xl flex items-center">
               <span className="bg-blue-600 text-white rounded-md p-1 mr-2">T</span>
-              TeacherTrain
+              BrainTrainX
             </Link>
             <p className="mt-2 text-sm text-foreground/70">
               AI-powered training plans for modern educators
@@ -29,11 +29,6 @@ const Footer = () => {
                 <li>
                   <Link href="/" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
                     Home
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/plans" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-                    My Plans
                   </Link>
                 </li>
                 <li>
@@ -90,7 +85,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-foreground/60">
-            &copy; {new Date().getFullYear()} TeacherTrain. All rights reserved.
+            &copy; {new Date().getFullYear()} BrainTrainX. All rights reserved.
           </p>
           
           <div className="flex space-x-6 mt-4 md:mt-0">
