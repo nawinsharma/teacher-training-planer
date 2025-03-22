@@ -56,19 +56,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      },
-    },
-  },
+
+  debug: process.env.NODE_ENV !== "production",
   adapter: PrismaAdapter(db) as Adapter,
-  debug: process.env.NODE_ENV === "development",
 };
 
 export const getAuthSession = () => getServerSession(authOptions);
