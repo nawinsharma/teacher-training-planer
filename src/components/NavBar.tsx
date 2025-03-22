@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Profile from './profile';
 
 export const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,14 +39,14 @@ export const NavBar = () => {
           <span className="bg-blue-600 text-white rounded-md p-1 mr-2">T</span>
           BrainTrainX
         </Link>
-        
+
         <div className="hidden md:flex items-center space-x-8">
           <NavLink href="/">Home</NavLink>
           <NavLink href="/about">About</NavLink>
-          <button className="button-primary">Get Started</button>
+          <div> <Profile /> </div>
         </div>
-        
-        <button 
+
+        <button
           className="md:hidden focus:outline-none"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
@@ -56,7 +57,7 @@ export const NavBar = () => {
           )}
         </button>
       </div>
-      
+
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-16 inset-x-0 glass-effect bg-gray-100 p-4 rounded-b-2xl animate-fade-in">
@@ -67,9 +68,7 @@ export const NavBar = () => {
             <MobileNavLink href="/about" onClick={() => setMobileMenuOpen(false)}>
               About
             </MobileNavLink>
-            <button className="button-primary w-full mt-2">
-              Get Started
-            </button>
+            <div> <Profile /> </div>
           </div>
         </div>
       )}
@@ -89,14 +88,14 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
   );
 };
 
-const MobileNavLink = ({ 
-  href, 
-  onClick, 
-  children 
-}: { 
-  href: string; 
+const MobileNavLink = ({
+  href,
+  onClick,
+  children
+}: {
+  href: string;
   onClick: () => void;
-  children: React.ReactNode 
+  children: React.ReactNode
 }) => {
   return (
     <Link
