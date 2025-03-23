@@ -1,64 +1,18 @@
-import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-} from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import type { Adapter } from "next-auth/adapters";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import db from "./prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import NextAuth from "next-auth";
+import { PrismaClient } from "@prisma/client";
+import authConfig from "./auth.config";
 
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-    } & DefaultSession["user"];
-  }
-}
+const prisma = new PrismaClient();
 
-export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/signin",
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          emailVerified: profile.email_verified ? new Date() : null,
-        };
-      },
-      httpOptions: {
-        timeout: 10000,
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
-  },
-
-  debug: process.env.NODE_ENV !== "production",
-  adapter: PrismaAdapter(db) as Adapter,
-};
-
-export const getAuthSession = () => getServerSession(authOptions);
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 },
+  ...authConfig,
+  // callbacks: {
+  //   // this function determines if the user is allowed to signing or not, it runs before the user is created in the database
+  //   async signIn({ user, account, profile, email, credentials }) {
+  //     return true;
+  //   },
+  // },
+});

@@ -196,10 +196,7 @@ const PlanGenerator = () => {
                 <div className="absolute inset-0 opacity-20">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI3NjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cmVjdCBmaWxsPSIjNTI2RUZGIiB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI3NjAiLz48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjUiIGZpbGw9IiNGRkYiIGN4PSI4ODUiIGN5PSIyNzgiIHI9IjIzMSIvPjxjaXJjbGUgZmlsbC1vcGFjaXR5PSIuNSIgZmlsbD0iI0ZGRiIgY3g9IjM2NSIgY3k9IjYwMiIgcj0iMTUxIi8+PGNpcmNsZSBmaWxsLW9wYWNpdHk9Ii41IiBmaWxsPSIjRkZGIiBjeD0iMTIyMCIgY3k9IjU5OSIgcj0iOTgiLz48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjUiIGZpbGw9IiNGRkYiIGN4PSI1MjAiIGN5PSIyMDYiIHI9IjEyOCIvPjwvZz48L3N2Zz4=')]"></div>
                 </div>
-                <div className="relative container mx-auto px-6 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                        EdPlan<span className="text-yellow-300">AI</span>
-                    </h1>
+                <div className="relative container mx-auto px-6 mt-5 text-center">
                     <p className="text-xl text-white/80 max-w-2xl mx-auto">
                         Create beautiful, professional teacher training plans in seconds with the power of AI
                     </p>
