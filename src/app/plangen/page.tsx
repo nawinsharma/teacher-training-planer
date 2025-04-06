@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check, ChevronsUpDown, Loader2, Sparkles, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from 'react-markdown';
 import { generateTrainingPlan } from "@/services/ai-service";
-import jsPDF from 'jspdf';
-import html2canvas from "html2canvas";
+// import jsPDF from 'jspdf';
+// import html2canvas from "html2canvas";
 
 interface SubjectOption {
     label: string;
@@ -165,29 +166,168 @@ const PlanGenerator = () => {
     };
 
 
-    const handleDownloadPlan = async () => {
+    // const handleDownloadPlan = async () => {
+    //     if (!generatedPlan) return;
+
+    //     const content = document.createElement("div");
+    //     content.innerHTML = generatedPlan;
+    //     content.style.width = "800px";
+
+    //     document.body.appendChild(content);
+
+    //     const canvas = await html2canvas(content, { scale: 2 });
+    //     const imgData = canvas.toDataURL("image/png");
+
+    //     document.body.removeChild(content);
+
+    //     const pdf = new jsPDF("p", "mm", "a4");
+    //     const imgWidth = 190; // Fit within A4 width
+    //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    //     pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+    //     pdf.save("Training_Plan.pdf");
+
+    //     toast.success("Plan downloaded as PDF!");
+    // };
+
+    const handleDownloadPlan = useCallback(async () => {
+        // PDF generation code remains the same
         if (!generatedPlan) return;
 
-        const content = document.createElement("div");
-        content.innerHTML = generatedPlan;
-        content.style.width = "800px";
+        try {
+            const { default: jsPDF } = await import('jspdf');
 
-        document.body.appendChild(content);
+            const doc = new jsPDF();
 
-        const canvas = await html2canvas(content, { scale: 2 });
-        const imgData = canvas.toDataURL("image/png");
+            // Add attribution at the top with clickable link
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'italic');
+            doc.text('Created by nawin - ', 10, 10);
 
-        document.body.removeChild(content);
+            // Add clickable link right after the text
+            const textWidth =
+                (doc.getStringUnitWidth('Created by nawin - ') * 10) /
+                doc.internal.scaleFactor;
+            doc.setTextColor(0, 0, 255); // Blue color for the link
+            doc.textWithLink(
+                'https://nawin.xyz/',
+                10 + textWidth,
+                10,
+                {
+                    url: 'https://nawin.xyz/',
+                    target: '_blank',
+                }
+            );
 
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 190; // Fit within A4 width
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            // Reset text color for the rest of the document
+            doc.setTextColor(0, 0, 0);
+            doc.line(10, 12, 200, 12);
 
-        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-        pdf.save("Training_Plan.pdf");
+            // Set font size to 12 for main content
+            doc.setFontSize(12);
 
-        toast.success("Plan downloaded as PDF!");
-    };
+            // Process markdown content to preserve formatting
+            const boldSections = [];
+            let match;
+            const boldRegex = /\*\*(.*?)\*\*/g;
+            while ((match = boldRegex.exec(generatedPlan)) !== null) {
+                boldSections.push(match[1]);
+            }
+
+            // Replace markdown syntax but preserve bold text for special handling
+            const processedText = generatedPlan
+                .replace(/\n#/g, '\n')
+                .replace(/#{1,6}\s/g, '')
+                .replace(/\*/g, '');
+
+            const fileName = formData.title.replace(/\s+/g, '_').toLowerCase();
+
+            // Split text into lines with appropriate width for the font size
+            const textLines = doc.splitTextToSize(processedText, 190);
+
+            // Check if there's an answer key section
+            const answerKeyIndex: number = textLines.findIndex(
+                (line: string) =>
+                    line.includes('Answer Key for Teachers') ||
+                    line.includes('Answer Key') ||
+                    line.includes('Answers for Teachers')
+            );
+
+            // Add content to PDF, handling pagination automatically
+            let yPosition = 20; // Start below the attribution
+            const lineHeight = 6; // For normal text
+
+            for (let i = 0; i < textLines.length; i++) {
+                // Check if this is the start of the answer key section
+                if (i === answerKeyIndex) {
+                    // Force a new page for the answer key
+                    doc.addPage();
+                    yPosition = 15; // Reset position to top of new page
+                }
+                // Otherwise add a new page if the current position exceeds the page height
+                else if (yPosition > 280) {
+                    doc.addPage();
+                    yPosition = 15; // Start a bit higher on subsequent pages
+                }
+
+                const currentLine = textLines[i];
+
+                // Check if this line contains any bold sections
+                const containsBold = boldSections.some((section) =>
+                    currentLine.includes(section)
+                );
+
+                if (containsBold) {
+                    // If line contains bold text, need to render it with mixed formatting
+                    let xPosition = 10;
+                    let remainingLine = currentLine;
+
+                    // For each bold section in this line
+                    for (const boldText of boldSections) {
+                        if (remainingLine.includes(boldText)) {
+                            const parts = remainingLine.split(boldText);
+
+                            // Render text before bold section
+                            if (parts[0]) {
+                                doc.setFont('helvetica', 'normal');
+                                doc.text(parts[0], xPosition, yPosition);
+                                xPosition +=
+                                    (doc.getStringUnitWidth(parts[0]) * 12) /
+                                    doc.internal.scaleFactor;
+                            }
+
+                            // Render bold section
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(boldText, xPosition, yPosition);
+                            xPosition +=
+                                (doc.getStringUnitWidth(boldText) * 12) /
+                                doc.internal.scaleFactor;
+
+                            // Update remaining line
+                            remainingLine = parts.slice(1).join(boldText);
+                        }
+                    }
+
+                    // Render any remaining text
+                    if (remainingLine) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(remainingLine, xPosition, yPosition);
+                    }
+                } else {
+                    // Normal line without bold text
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(currentLine, 10, yPosition);
+                }
+
+                yPosition += lineHeight;
+            }
+
+            doc.save(`${fileName}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            toast.error('Failed to generate PDF. Please try again.');
+        }
+    }, [generatedPlan, formData.title]);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -415,9 +555,11 @@ const PlanGenerator = () => {
                                     </div>
                                 ) : generatedPlan ? (
                                     <div className="h-full min-h-[500px] overflow-y-auto p-6">
-                                        <div className="prose prose-indigo dark:prose-invert max-w-none">
-                                            <div dangerouslySetInnerHTML={{ __html: generatedPlan }} />
-                                            {/* <ReactMarkdown>{generatedPlan}</ReactMarkdown> */}
+                                        <div
+                                            className={`prose max-w-none prose-headings:font-bold prose-headings:text-indigo-900 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:font-semibold prose-strong:text-indigo-700 prose-code:text-gray-800 prose-pre:bg-gray-50 prose-pre:text-gray-800 prose-ol:list-decimal prose-ul:list-disc`}>
+                                            <ReactMarkdown>
+                                                {generatedPlan}
+                                            </ReactMarkdown>
                                         </div>
                                     </div>
                                 ) : (

@@ -20,7 +20,7 @@ export async function generateTrainingPlan(prompt: string) {
       
       Make it practical and engaging for teachers.
       Keep the tone professional but approachable
-
+      
     `);
 
     const response = await result.response;

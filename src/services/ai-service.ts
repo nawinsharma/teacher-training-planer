@@ -31,9 +31,19 @@ export async function generateTrainingPlan(params: PlanGenerationParams): Promis
       4. A session outline with timing for each section
       5. Required materials and resources
       6. Follow-up activities or assessment
+      7. do not include tables to present the information
       
-      Format the response in HTML for proper display, with appropriate headers, lists, and spacing.
-      Keep the tone professional but approachable
+    ### Important Formatting Guidelines:
+    - do not use any code blocks
+    - Use a clear and concise writing style.
+    - Use bullet points for lists.
+    - Use proper markdown headers (# for main titles, ## for subtitles).
+    - Use bullet points for lists.
+    - **Bold important terms** for emphasis.
+    - Do **not** wrap your entire response in markdown code blocks (\`\`\`).
+    - Ensure proper spacing between sections.
+    - Format time allocations consistently.
+    
     `;
 
     console.log("Sending request to Gemini API with prompt:", prompt);
