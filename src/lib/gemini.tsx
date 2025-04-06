@@ -9,15 +9,27 @@ export async function generateTrainingPlan(prompt: string) {
     const result = await model.generateContent(`
       Create a detailed teacher training session plan based on the following input: ${prompt}
       
-      Include the following sections:
-      1. Session Title
-      2. Learning Objectives
-      3. Duration
-      4. Required Materials
-      5. Step-by-step Activities
-      6. Assessment Methods
-      7. Follow-up Tasks
+       The plan should include:
+      1. A clear title and duration
+      2. Target audience specification
+      3. Detailed learning objectives
+      4. A session outline with timing for each section
+      5. Required materials and resources
+      6. Follow-up activities or assessment
+      7. do not include tables to present the information
       
+    ### Important Formatting Guidelines:
+    - do not use any code blocks
+    - Use a clear and concise writing style.
+    - Use bullet points for lists.
+    - Use proper markdown headers (# for main titles, ## for subtitles).
+    - Use bullet points for lists.
+    - **Bold important terms** for emphasis.
+    - Do **not** wrap your entire response in markdown code blocks (\`\`\`).
+    - Ensure proper spacing between sections.
+    - Format time allocations consistently.
+    - Use a friendly and engaging tone.
+    
       Make it practical and engaging for teachers.
       Keep the tone professional but approachable
       

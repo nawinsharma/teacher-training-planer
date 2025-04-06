@@ -97,8 +97,6 @@ export async function generateTrainingPlan(params: PlanGenerationParams): Promis
     }
 
     const data = await response.json();
-    console.log("Gemini API Response:", data);
-    
     // Check if the response contains the expected data structure
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
       console.error("Unexpected API response format:", data);

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Loader2, FileText, Copy, Download } from "lucide-react";
 import { generateTrainingPlan } from "@/lib/gemini";
-import jsPDF from "jspdf";
 import { toast } from "sonner";
 import ReactMarkdown from 'react-markdown';
 
@@ -45,35 +44,145 @@ export default function CreatePage() {
     alert("Training plan copied to clipboard!");
   };
 
-  const handleDownload = () => {
-    if(!plan){
-      toast.warning('plan is not there buddy')
-    }
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("Training Plan", 15, 20);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    let yPos = 30;
-    const maxWidth = 180;
-    const lineHeight = 8;
-    const textContent = plan.replace(/[#*_`>-]/g, "").replace(/\n{2,}/g, "\n");
-    const lines = doc.splitTextToSize(textContent, maxWidth);
-
-    lines.forEach((line: string | string[]) => {
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = 20;
-      }
-      doc.text(line, 15, yPos);
-      yPos += lineHeight;
-    });
-
-    doc.save("Training_Plan.pdf");
-    toast.success("your pdf is downloaded")
-  };
+ 
+     const handleDownload = useCallback(async () => {
+         // PDF generation code remains the same
+         if (!plan) return;
+ 
+         try {
+             const { default: jsPDF } = await import('jspdf');
+ 
+             const doc = new jsPDF();
+ 
+             // Add attribution at the top with clickable link
+             doc.setFontSize(10);
+             doc.setFont('helvetica', 'italic');
+             doc.text('Created by nawin - ', 10, 10);
+ 
+             // Add clickable link right after the text
+             const textWidth =
+                 (doc.getStringUnitWidth('Created by nawin - ') * 10) /
+                 doc.internal.scaleFactor;
+             doc.setTextColor(0, 0, 255); // Blue color for the link
+             doc.textWithLink(
+                 'https://nawin.xyz/',
+                 10 + textWidth,
+                 10,
+                 {
+                     url: 'https://nawin.xyz/',
+                     target: '_blank',
+                 }
+             );
+ 
+             // Reset text color for the rest of the document
+             doc.setTextColor(0, 0, 0);
+             doc.line(10, 12, 200, 12);
+ 
+             // Set font size to 12 for main content
+             doc.setFontSize(12);
+ 
+             // Process markdown content to preserve formatting
+             const boldSections = [];
+             let match;
+             const boldRegex = /\*\*(.*?)\*\*/g;
+             while ((match = boldRegex.exec(plan)) !== null) {
+                 boldSections.push(match[1]);
+             }
+ 
+             // Replace markdown syntax but preserve bold text for special handling
+             const processedText = plan
+                 .replace(/\n#/g, '\n')
+                 .replace(/#{1,6}\s/g, '')
+                 .replace(/\*/g, '');
+ 
+ 
+             // Split text into lines with appropriate width for the font size
+             const textLines = doc.splitTextToSize(processedText, 190);
+ 
+             // Check if there's an answer key section
+             const answerKeyIndex: number = textLines.findIndex(
+                 (line: string) =>
+                     line.includes('Answer Key for Teachers') ||
+                     line.includes('Answer Key') ||
+                     line.includes('Answers for Teachers')
+             );
+ 
+             // Add content to PDF, handling pagination automatically
+             let yPosition = 20; // Start below the attribution
+             const lineHeight = 6; // For normal text
+ 
+             for (let i = 0; i < textLines.length; i++) {
+                 // Check if this is the start of the answer key section
+                 if (i === answerKeyIndex) {
+                     // Force a new page for the answer key
+                     doc.addPage();
+                     yPosition = 15; // Reset position to top of new page
+                 }
+                 // Otherwise add a new page if the current position exceeds the page height
+                 else if (yPosition > 280) {
+                     doc.addPage();
+                     yPosition = 15; // Start a bit higher on subsequent pages
+                 }
+ 
+                 const currentLine = textLines[i];
+ 
+                 // Check if this line contains any bold sections
+                 const containsBold = boldSections.some((section) =>
+                     currentLine.includes(section)
+                 );
+ 
+                 if (containsBold) {
+                     // If line contains bold text, need to render it with mixed formatting
+                     let xPosition = 10;
+                     let remainingLine = currentLine;
+ 
+                     // For each bold section in this line
+                     for (const boldText of boldSections) {
+                         if (remainingLine.includes(boldText)) {
+                             const parts = remainingLine.split(boldText);
+ 
+                             // Render text before bold section
+                             if (parts[0]) {
+                                 doc.setFont('helvetica', 'normal');
+                                 doc.text(parts[0], xPosition, yPosition);
+                                 xPosition +=
+                                     (doc.getStringUnitWidth(parts[0]) * 12) /
+                                     doc.internal.scaleFactor;
+                             }
+ 
+                             // Render bold section
+                             doc.setFont('helvetica', 'bold');
+                             doc.text(boldText, xPosition, yPosition);
+                             xPosition +=
+                                 (doc.getStringUnitWidth(boldText) * 12) /
+                                 doc.internal.scaleFactor;
+ 
+                             // Update remaining line
+                             remainingLine = parts.slice(1).join(boldText);
+                         }
+                     }
+ 
+                     // Render any remaining text
+                     if (remainingLine) {
+                         doc.setFont('helvetica', 'normal');
+                         doc.text(remainingLine, xPosition, yPosition);
+                     }
+                 } else {
+                     // Normal line without bold text
+                     doc.setFont('helvetica', 'normal');
+                     doc.text(currentLine, 10, yPosition);
+                 }
+ 
+                 yPosition += lineHeight;
+             }
+ 
+             doc.save(`nawin.pdf`);
+         } catch (error) {
+             console.error('Error generating PDF:', error);
+             toast.error('Failed to generate PDF. Please try again.');
+         }
+     }, [plan]);
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 p-8 flex flex-col mt-20 items-center">

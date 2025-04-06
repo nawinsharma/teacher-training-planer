@@ -12,8 +12,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
 import { generateTrainingPlan } from "@/services/ai-service";
-// import jsPDF from 'jspdf';
-// import html2canvas from "html2canvas";
 
 interface SubjectOption {
     label: string;
